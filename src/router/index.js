@@ -1,8 +1,14 @@
-const user = require("./user");
+const Router = require('@koa/router');
+const user = require('./user');
 
-async function userRouters(ctx, next) {
-  ctx.app.use(user.routes()).use(user.allowedMethods());
-  await next();
-}
+const router = new Router();
 
-module.exports = userRouters;
+// 指定一个url匹配
+router.get('/', async (ctx) => {
+    ctx.type = 'html';
+    ctx.body = '<h1>hello world!</h1>';
+})
+
+router.use(user.routes(), user.allowedMethods());
+
+module.exports = router;

@@ -6,7 +6,7 @@ const bodyParser = require('koa-bodyparser');
 const logger = require('koa-logger');
 const routerResponse = require('./middlewares/routerResponse')
 const config = require('./config/default')
-const userRouters = require('./router/index')
+const router = require('./router/index')
 
 const app =  new Koa()
 
@@ -19,8 +19,8 @@ app.use(bodyParser());
 // 添加请求结果的中间件，统一封装返回结构体，在context中添加fail和success方法请求返回结果里有用到
 app.use(routerResponse)
 // 路由
-app.use(userRouters);
-
+app.use(router.routes());
+app.use(router.allowedMethods());
 
 app.listen(config.port)
 
