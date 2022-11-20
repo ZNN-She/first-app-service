@@ -1,7 +1,7 @@
 const Router = require('@koa/router')
 const UserModel = require('../db/user')
 
-const user = new Router({
+const userRoters = new Router({
   prefix: '/user'
 })
 
@@ -20,11 +20,11 @@ const hasParams = async (ctx, next) => {
   
 }
 
-user.post('/login', (ctx) => {
+userRoters.post('/login', (ctx) => {
   ctx.success('登录成功')
 })
 
-router.post('/register', hasParams, async (ctx, next) => {
+userRoters.post('/register', hasParams, async (ctx, next) => {
   const { body } = ctx.request;
   try {
     const res = await UserModel.save({
@@ -40,13 +40,14 @@ router.post('/register', hasParams, async (ctx, next) => {
   }
 })
 
-user.get('/list', (ctx) => {
+userRoters.get('/list', async (ctx, next) => {
   try {
-    const res = UserModel.query();
-    ctx.success(res)
+    const res = await UserModel.query({});
+    console.log(res)
+    await ctx.success(res)
   } catch (error) {
-    ctx.fail(error)
+    await ctx.fail(error)
   }
 })
 
-module.exports = user
+module.exports = userRoters

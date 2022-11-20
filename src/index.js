@@ -9,12 +9,9 @@ const config = require('./config/default')
 const userRouters = require('./router/index')
 
 const app =  new Koa()
-const router = new Router({
-  prefix: '/user'
-})
 
 // 日志
-app.use(logger());
+// app.use(logger());
 // 跨域配置
 app.use(cors());
 // 请求参数处理成json 
@@ -23,8 +20,6 @@ app.use(bodyParser());
 app.use(routerResponse)
 // 路由
 app.use(userRouters);
-app.use(router.routes())
-app.use(router.allowedMethods())
 
 
 app.listen(config.port)

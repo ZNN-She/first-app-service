@@ -16,5 +16,5 @@ module.exports = async (ctx, next) => {
     }
   }
 
-  next()
+  await next()
 }
