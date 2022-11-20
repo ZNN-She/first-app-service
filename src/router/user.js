@@ -1,59 +1,52 @@
 const Router = require('@koa/router')
-const { default: mongoose } = require('mongoose')
-
-
-const userSchema = new mongoose.Schema({
-  username: String,
-  password: String,
-})
-// userSchema.index({username: 1, password: 1})
-
-var User = mongoose.model('User', userSchema);
-
+const UserModel = require('../db/user')
 
 const user = new Router({
   prefix: '/user'
 })
 
+// 参数验证
+const hasParams = async (ctx, next) => {
+  const { body } = ctx.request;
+  if (!body.username) {
+    await ctx.fail('用户名不能为空')
+  } else if (!body.password || !body.passwordAffirm) {
+    await ctx.fail('密码不能为空')
+  } else if (body.password !== body.passwordAffirm) {
+    ctx.fail('两次输入的密码不一致')
+  }else{
+    await next()
+  }
+  
+}
+
 user.post('/login', (ctx) => {
   ctx.success('登录成功')
 })
 
-user.post('/register', (ctx) => {
-  console.log(ctx.request.body)
+router.post('/register', hasParams, async (ctx, next) => {
   const { body } = ctx.request;
-  try{
-    if (!body.username) {
-      ctx.fail('用户名不能为空')
-    } else if (!body.password || !body.passwordAffirm) {
-      ctx.fail('密码不能为空')
-    } else if (body.password !== body.passwordAffirm) {
-      ctx.fail('两次输入的密码不一致')
-    } else {
-      const use = new User({
-        username: body.username,
-        password: body.password
-      })
-      use.save(function (err) {
-        if (err) {
-          console.log(err)
-          ctx.fail(err);
-        } else {
-          ctx.success('注册成功')
-        }
-      })
-    }
-  }catch(e){
+  try {
+    const res = await UserModel.save({
+      username: body.username,
+      password: body.password
+    })
+    ctx.success('注册成功')
+    next()
+  } catch (e) {
     console.log(e)
     ctx.fail('系统异常')
+    next()
   }
 })
 
 user.get('/list', (ctx) => {
-  ctx.success([
-    { id: 1, name: 'test1' },
-    { id: 2, name: 'test2' },
-  ])
+  try {
+    const res = UserModel.query();
+    ctx.success(res)
+  } catch (error) {
+    ctx.fail(error)
+  }
 })
 
 module.exports = user

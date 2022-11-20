@@ -1,43 +1,32 @@
-const Koa = require('koa');
-const logger = require('koa-logger');
+// 启动入口
+const Koa = require('koa')
 const cors = require('@koa/cors')
 const Router = require('@koa/router')
-const routerResponse = require('./middlewares/routerResponse')
-const userRouters = require('./router/index');
 const bodyParser = require('koa-bodyparser');
-const { default: mongoose } = require('mongoose');
+const logger = require('koa-logger');
+const routerResponse = require('./middlewares/routerResponse')
+const config = require('./config/default')
+const userRouters = require('./router/index')
 
-const router = new Router()
-const app = new Koa();
-
-
-// middlewares
-
-app.use(logger());
-
-// 统一返回值
-app.use(bodyParser());
-app.use(routerResponse());
-
-// 路由
-app.use(cors())
-app.use(userRouters);
-router.get("/koa/test", async (ctx, next) => {
-  console.log("ajax called.")
-  ctx.set("Content-Type", "application/json")
-  ctx.body = '123'
+const app =  new Koa()
+const router = new Router({
+  prefix: '/user'
 })
+
+// 日志
+app.use(logger());
+// 跨域配置
+app.use(cors());
+// 请求参数处理成json 
+app.use(bodyParser());
+// 添加请求结果的中间件，统一封装返回结构体，在context中添加fail和success方法请求返回结果里有用到
+app.use(routerResponse)
+// 路由
+app.use(userRouters);
 app.use(router.routes())
 app.use(router.allowedMethods())
 
-// 链接数据库
-mongoose.connect('mongodb://127.0.0.1:27017/app');
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', function () {
-  console.log('链接数据库成功')
-});
 
+app.listen(config.port)
 
-
-app.listen(8080);
+console.log(`listening on port ${config.port}`)

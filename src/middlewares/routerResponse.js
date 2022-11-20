@@ -1,26 +1,20 @@
-function routerResponse(option = {}) {
-  return function (ctx, next) {
-    ctx.success = function (data) {
-      ctx.type = option.type || 'json'
-      ctx.body = {
-        code: option.successCode || 200,
-        msg: option.successMsg || 'success',
-        data: data
-      }
+module.exports = async (ctx, next) => {
+  ctx.success = async (data) => {
+    ctx.type = 'json'
+    ctx.body = {
+      code: 200,
+      msg: 'success',
+      data: data
     }
-
-    ctx.fail = function (msg, code) {
-      ctx.type = option.type || 'json'
-      ctx.body = {
-        code: code || option.failCode || 001,
-        msg: msg || option.successMsg || 'fail',
-      }
-    }
-
-    next()
   }
 
+  ctx.fail = async (msg, code) => {
+    ctx.type = 'json'
+    ctx.body = {
+      code: code || 500,
+      msg: msg || 'fail',
+    }
+  }
+
+  next()
 }
-
-
-module.exports = routerResponse
